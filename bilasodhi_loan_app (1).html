@@ -1,0 +1,1011 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0f4f8;color:#1a202c;min-height:100vh}
+:root{
+  --primary:#1a56db;--primary-dark:#1e40af;--primary-light:#ebf5ff;
+  --success:#059669;--success-light:#ecfdf5;
+  --warning:#d97706;--warning-light:#fffbeb;
+  --danger:#dc2626;--danger-light:#fef2f2;
+  --gray:#6b7280;--gray-light:#f9fafb;
+  --border:#e5e7eb;--card:#ffffff;
+  --sidebar-bg:#0f172a;--sidebar-text:#94a3b8;--sidebar-active:#1a56db;
+}
+/* Layout */
+.app{display:flex;height:100vh;overflow:hidden}
+.sidebar{width:240px;background:var(--sidebar-bg);display:flex;flex-direction:column;flex-shrink:0;transition:width .3s}
+.sidebar-logo{padding:20px 16px;border-bottom:1px solid #1e293b}
+.sidebar-logo h2{color:#f1f5f9;font-size:18px;font-weight:700;letter-spacing:-0.5px}
+.sidebar-logo span{color:var(--sidebar-active);font-size:13px}
+.sidebar-nav{padding:12px 8px;flex:1;overflow-y:auto}
+.nav-section{font-size:10px;font-weight:600;color:#475569;text-transform:uppercase;letter-spacing:1px;padding:8px 8px 4px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;cursor:pointer;color:var(--sidebar-text);font-size:13px;margin-bottom:2px;transition:all .2s}
+.nav-item:hover{background:#1e293b;color:#f1f5f9}
+.nav-item.active{background:var(--sidebar-active);color:#fff}
+.nav-item svg{width:16px;height:16px;flex-shrink:0}
+.sidebar-footer{padding:12px;border-top:1px solid #1e293b}
+.user-pill{display:flex;align-items:center;gap:10px;padding:8px;border-radius:8px;background:#1e293b;cursor:pointer}
+.user-pill .avatar{width:32px;height:32px;border-radius:50%;background:var(--sidebar-active);display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:700;flex-shrink:0}
+.user-pill .info{min-width:0}
+.user-pill .name{color:#f1f5f9;font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.user-pill .role{color:var(--sidebar-text);font-size:10px}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.topbar{background:#fff;border-bottom:1px solid var(--border);padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.topbar h1{font-size:16px;font-weight:600;color:#111827}
+.topbar-actions{display:flex;align-items:center;gap:8px}
+.content{flex:1;overflow-y:auto;padding:24px}
+/* Cards */
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px}
+.card-sm{padding:16px}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px;margin-bottom:24px}
+.stat-card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:16px}
+.stat-label{font-size:11px;color:var(--gray);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;font-weight:600}
+.stat-value{font-size:24px;font-weight:700;color:#111827}
+.stat-sub{font-size:12px;color:var(--gray);margin-top:4px}
+.stat-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;margin-bottom:12px}
+.stat-icon svg{width:18px;height:18px}
+/* Buttons */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;border:none;transition:all .2s;white-space:nowrap}
+.btn-primary{background:var(--primary);color:#fff}
+.btn-primary:hover{background:var(--primary-dark)}
+.btn-outline{background:#fff;color:#374151;border:1px solid var(--border)}
+.btn-outline:hover{background:var(--gray-light)}
+.btn-success{background:var(--success);color:#fff}
+.btn-danger{background:var(--danger);color:#fff}
+.btn-sm{padding:5px 12px;font-size:12px}
+.btn-xs{padding:3px 8px;font-size:11px;border-radius:6px}
+/* Table */
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;padding:10px 12px;background:#f8fafc;color:#6b7280;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--border)}
+td{padding:10px 12px;border-bottom:1px solid #f3f4f6;color:#374151}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#fafafa}
+/* Badges */
+.badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600}
+.badge-success{background:var(--success-light);color:var(--success)}
+.badge-warning{background:var(--warning-light);color:var(--warning)}
+.badge-danger{background:var(--danger-light);color:var(--danger)}
+.badge-blue{background:#eff6ff;color:#1d4ed8}
+.badge-gray{background:#f3f4f6;color:#6b7280}
+/* Forms */
+.form-group{margin-bottom:16px}
+label{display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:6px}
+input,select,textarea{width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;color:#111827;background:#fff;outline:none;transition:border .2s}
+input:focus,select:focus,textarea:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(26,86,219,.1)}
+textarea{resize:vertical;min-height:80px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+/* Login */
+.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#0f172a 0%,#1e3a8a 100%)}
+.login-card{background:#fff;border-radius:20px;padding:40px;width:100%;max-width:400px;box-shadow:0 25px 50px rgba(0,0,0,.3)}
+.login-logo{text-align:center;margin-bottom:32px}
+.login-logo h1{font-size:28px;font-weight:800;color:#0f172a}
+.login-logo h1 span{color:var(--primary)}
+.login-logo p{font-size:13px;color:var(--gray);margin-top:4px}
+.tabs{display:flex;gap:4px;background:#f3f4f6;padding:4px;border-radius:10px;margin-bottom:20px}
+.tab{flex:1;padding:8px;text-align:center;font-size:13px;font-weight:500;border-radius:8px;cursor:pointer;color:var(--gray);transition:all .2s}
+.tab.active{background:#fff;color:var(--primary);box-shadow:0 1px 3px rgba(0,0,0,.1)}
+/* OTP */
+.otp-wrap{display:flex;gap:8px;justify-content:center;margin:16px 0}
+.otp-input{width:44px;height:48px;text-align:center;font-size:20px;font-weight:700;border:2px solid var(--border);border-radius:10px;outline:none}
+.otp-input:focus{border-color:var(--primary)}
+/* Progress bar */
+.progress-bar{height:6px;background:#e5e7eb;border-radius:999px;overflow:hidden}
+.progress-fill{height:100%;background:var(--primary);border-radius:999px;transition:width .5s}
+/* Loan card */
+.loan-card{border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:12px}
+.loan-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+/* QR */
+.qr-box{background:#fff;border:1px solid var(--border);border-radius:12px;padding:20px;text-align:center}
+.qr-visual{width:140px;height:140px;margin:12px auto;display:grid;grid-template-columns:repeat(10,1fr);gap:1px}
+.qr-cell{border-radius:1px}
+/* Notification dot */
+.notif-dot{width:8px;height:8px;background:#ef4444;border-radius:50%;display:inline-block;margin-left:4px}
+/* Search */
+.search-wrap{position:relative}
+.search-wrap input{padding-left:36px}
+.search-icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--gray)}
+.search-icon svg{width:14px;height:14px}
+/* Modal overlay */
+.modal-overlay{position:absolute;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:100;border-radius:0}
+.modal{background:#fff;border-radius:16px;padding:24px;width:100%;max-width:480px;max-height:85vh;overflow-y:auto;box-shadow:0 25px 50px rgba(0,0,0,.3)}
+.modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+.modal-header h3{font-size:16px;font-weight:700}
+.close-btn{width:28px;height:28px;border-radius:6px;border:1px solid var(--border);background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--gray)}
+/* Section titles */
+.section-title{font-size:15px;font-weight:700;color:#111827;margin-bottom:16px}
+.section-subtitle{font-size:13px;color:var(--gray);margin-bottom:20px}
+/* Avatar */
+.avatar-lg{width:64px;height:64px;border-radius:50%;background:var(--primary-light);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;color:var(--primary);margin-bottom:12px}
+/* Chips */
+.chip{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;background:#f3f4f6;border-radius:20px;font-size:11px;color:#374151;cursor:pointer}
+.chip.active{background:var(--primary);color:#fff}
+/* EMI table */
+.emi-row-paid td{color:#059669;background:#f0fdf4}
+.emi-row-upcoming td{color:#374151}
+.emi-row-missed td{color:#dc2626;background:#fef2f2}
+/* Scrollbar */
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:99px}
+/* Responsive content areas */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px}
+@media(max-width:900px){.grid-2,.grid-3{grid-template-columns:1fr}.form-row{grid-template-columns:1fr}.sidebar{width:200px}}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script>
+const {useState,useEffect,useRef,useCallback}=React;
+
+// ── DATA ──────────────────────────────────────────────────────────────
+const ADMINS=[
+  {id:'A1',name:'Ramesh Kumar',mobile:'9876543210',email:'ramesh@bilasodhi.com',role:'admin',assignedMembers:['M1','M2','M3','M4','M5','M6','M7','M8','M9','M10']},
+  {id:'A2',name:'Sunita Sharma',mobile:'9876543211',email:'sunita@bilasodhi.com',role:'admin',assignedMembers:['M11','M12','M13','M14','M15','M16','M17','M18','M19','M20']},
+];
+const generateMembers=()=>{
+  const names=['Arjun Singh','Priya Patel','Rohit Verma','Anjali Gupta','Vikram Rao','Meena Joshi','Deepak Shah','Kavita Nair','Suresh Pillai','Rekha Iyer','Amit Yadav','Pooja Mishra','Rahul Pandey','Sunita Das','Kiran Mehta','Satish Reddy','Lalita Rao','Mahesh Patil','Geeta Khanna','Dinesh Tripathi'];
+  const statuses=['active','active','active','active','loan-active'];
+  return names.map((name,i)=>({
+    id:'M'+(i+1),adminId:i<10?'A1':'A2',
+    name,mobile:'98'+String(7000000+i*13579).slice(0,8),
+    email:name.split(' ')[0].toLowerCase()+'@email.com',
+    ifsc:'SBIN000'+(1234+i),bank:'SBI',
+    account:'XXXX'+String(1000+i),
+    status:statuses[i%statuses.length],
+    joined:'2024-0'+(1+(i%9))+'-'+(10+(i%18)),
+    photo:null,
+    loan:i%3===0?{id:'L'+(i+1),amount:(i+1)*1000+5000,duration:i%2===0?12:20,paid:(i%5)*1000,status:i<15?'active':'cleared',appliedDate:'2024-03-15',approvedDate:'2024-03-18'}:null
+  }));
+};
+const MEMBERS=generateMembers();
+const LOANS=MEMBERS.filter(m=>m.loan).map(m=>m.loan);
+
+const initState={
+  screen:'login',currentUser:null,loginStep:'input',loginTab:'mobile',loginValue:'',otp:'',otpSent:false,
+  page:'dashboard',modal:null,
+  members:MEMBERS,loans:LOANS,
+  searchTerm:'',filterStatus:'all',
+  loanForm:{amount:'',duration:'',purpose:''},
+  paymentForm:{amount:'',memberId:'',note:''},
+  notification:{show:false,msg:'',type:'success'},
+};
+
+// ── HELPERS ───────────────────────────────────────────────────────────
+const formatCurrency=n=>'₹'+Number(n).toLocaleString('en-IN');
+const formatDate=d=>new Date(d).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});
+const getInitials=name=>name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+const calcEMI=(loan)=>Math.ceil(loan.amount/loan.duration);
+const calcRemaining=(loan)=>loan.amount-loan.paid;
+const calcProgress=(loan)=>Math.round((loan.paid/loan.amount)*100);
+
+// Generate QR pattern (deterministic pseudo-random)
+const makeQR=(seed)=>{
+  const cells=[];
+  for(let i=0;i<100;i++){
+    const v=(seed*7+i*13+i*i*3)%7;
+    cells.push(v<3);
+  }
+  return cells;
+};
+
+// ── ICONS ─────────────────────────────────────────────────────────────
+const Icon=({d,size=16,stroke=2})=>React.createElement('svg',{width:size,height:size,viewBox:'0 0 24 24',fill:'none',stroke:'currentColor',strokeWidth:stroke,strokeLinecap:'round',strokeLinejoin:'round'},React.createElement('path',{d}));
+const icons={
+  dashboard:'M4 5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v4a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5zm10 0a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v4a1 1 0 0 1-1 1h-4a1 1 0 0 1-1-1V5zM4 15a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v4a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-4zm10 0a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v4a1 1 0 0 1-1 1h-4a1 1 0 0 1-1-1v-4z',
+  members:'M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zm8 0c0 1.657-1.343 3-3 3',
+  loan:'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 14H9v-2h4v2zm0-4H9V7h4v5z',
+  payment:'M2 10h20M6 14h2M10 14h4M6 6h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2z',
+  reports:'M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zM14 2v6h6M16 13H8M16 17H8M10 9H8',
+  profile:'M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z',
+  logout:'M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9',
+  notify:'M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0',
+  search:'M21 21l-6-6m2-5a7 7 0 1 1-14 0 7 7 0 0 1 14 0',
+  plus:'M12 5v14M5 12h14',
+  check:'M20 6L9 17l-5-5',
+  x:'M18 6L6 18M6 6l12 12',
+  eye:'M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8zM12 9a3 3 0 1 0 0 6 3 3 0 0 0 0-6z',
+  download:'M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3',
+  filter:'M22 3H2l8 9.46V19l4 2v-8.54L22 3z',
+  qr:'M3 3h7v7H3zm11 0h7v7h-7zM3 14h7v7H3zm13 0h2v2h-2zm0 4h2v2h-2zm-4-4h2v2h-2zm4-4h2v2h-2zm0 8h2v2h-2zm-8-8h2v2h-2z',
+  edit:'M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z',
+  arrow:'M5 12h14M12 5l7 7-7 7',
+};
+
+// ── COMPONENTS ────────────────────────────────────────────────────────
+function Notification({show,msg,type,onClose}){
+  useEffect(()=>{if(show){const t=setTimeout(onClose,3000);return()=>clearTimeout(t)}},[show]);
+  if(!show)return null;
+  return React.createElement('div',{style:{position:'fixed',top:20,right:20,zIndex:999,background:type==='success'?'#059669':type==='error'?'#dc2626':'#d97706',color:'#fff',padding:'12px 20px',borderRadius:10,fontSize:13,fontWeight:500,boxShadow:'0 8px 24px rgba(0,0,0,.2)',display:'flex',alignItems:'center',gap:10}},
+    React.createElement(Icon,{d:type==='success'?icons.check:icons.x,size:16}),msg,
+    React.createElement('span',{onClick:onClose,style:{cursor:'pointer',marginLeft:8,opacity:.8}},'×')
+  );
+}
+
+function Avatar({name,size=32,fontSize=12}){
+  const colors=['#1a56db','#059669','#d97706','#7c3aed','#db2777','#0891b2'];
+  const color=colors[name.charCodeAt(0)%colors.length];
+  return React.createElement('div',{style:{width:size,height:size,borderRadius:'50%',background:color+'22',display:'flex',alignItems:'center',justifyContent:'center',fontSize,fontWeight:700,color,flexShrink:0}},getInitials(name));
+}
+
+function StatCard({label,value,sub,color='#1a56db',icon}){
+  return React.createElement('div',{className:'stat-card'},
+    React.createElement('div',{className:'stat-icon',style:{background:color+'15',color}},React.createElement(Icon,{d:icons[icon]||icons.dashboard,size:18})),
+    React.createElement('div',{className:'stat-label'},label),
+    React.createElement('div',{className:'stat-value'},value),
+    sub&&React.createElement('div',{className:'stat-sub'},sub)
+  );
+}
+
+function Badge({status}){
+  const map={active:['badge-success','Active'],'loan-active':['badge-blue','Loan Active'],cleared:['badge-gray','Cleared'],pending:['badge-warning','Pending'],approved:['badge-success','Approved'],rejected:['badge-danger','Rejected']};
+  const [cls,label]=map[status]||['badge-gray',status];
+  return React.createElement('span',{className:`badge ${cls}`},label);
+}
+
+// ── QR CODE ───────────────────────────────────────────────────────────
+function QRCode({memberId,name}){
+  const seed=memberId.charCodeAt(1)||42;
+  const cells=makeQR(seed);
+  return React.createElement('div',{className:'qr-box'},
+    React.createElement('div',{style:{fontSize:12,color:'#6b7280',marginBottom:8}},'Scan to Pay'),
+    React.createElement('div',{className:'qr-visual'},
+      cells.map((filled,i)=>React.createElement('div',{key:i,className:'qr-cell',style:{background:filled?'#0f172a':'#f8fafc',aspectRatio:'1'}}))
+    ),
+    React.createElement('div',{style:{fontSize:11,fontWeight:600,color:'#374151',marginTop:8}},'BilaSodhi Loan Payment'),
+    React.createElement('div',{style:{fontSize:10,color:'#6b7280'}},'Member: '+name)
+  );
+}
+
+// ── EMI SCHEDULE ──────────────────────────────────────────────────────
+function EMISchedule({loan,member}){
+  if(!loan)return null;
+  const emi=calcEMI(loan);
+  const paidMonths=Math.floor(loan.paid/emi);
+  const rows=Array.from({length:loan.duration},(_, i)=>{
+    const month=i+1;
+    const due=new Date('2024-03-18');due.setMonth(due.getMonth()+month);
+    const status=i<paidMonths?'paid':i===paidMonths?'upcoming':'pending';
+    return{month,due:due.toLocaleDateString('en-IN',{month:'short',year:'2-digit'}),emi,status};
+  });
+  return React.createElement('div',null,
+    React.createElement('div',{style:{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:12}},
+      React.createElement('div',{className:'section-title',style:{margin:0}},'EMI Schedule'),
+      React.createElement('div',{style:{fontSize:12,color:'#6b7280'}},paidMonths+' of '+loan.duration+' paid')
+    ),
+    React.createElement('div',{className:'progress-bar',style:{marginBottom:16}},
+      React.createElement('div',{className:'progress-fill',style:{width:calcProgress(loan)+'%'}})
+    ),
+    React.createElement('div',{className:'table-wrap',style:{maxHeight:280,overflowY:'auto'}},
+      React.createElement('table',null,
+        React.createElement('thead',null,React.createElement('tr',null,
+          React.createElement('th',null,'Month'),React.createElement('th',null,'Due Date'),React.createElement('th',null,'EMI Amount'),React.createElement('th',null,'Status')
+        )),
+        React.createElement('tbody',null,rows.map(r=>
+          React.createElement('tr',{key:r.month,className:'emi-row-'+r.status},
+            React.createElement('td',null,'Month '+r.month),
+            React.createElement('td',null,r.due),
+            React.createElement('td',null,formatCurrency(r.emi)),
+            React.createElement('td',null,React.createElement('span',{className:'badge '+(r.status==='paid'?'badge-success':r.status==='upcoming'?'badge-blue':'badge-gray')},r.status==='paid'?'Paid':r.status==='upcoming'?'Next Due':'Pending'))
+          )
+        ))
+      )
+    )
+  );
+}
+
+// ── LOGIN SCREEN ──────────────────────────────────────────────────────
+function LoginScreen({state,dispatch}){
+  const[otp,setOtp]=useState(['','','','']);
+  const otpRefs=[useRef(),useRef(),useRef(),useRef()];
+  const handleOTPInput=(i,v)=>{
+    const newOtp=[...otp];newOtp[i]=v.slice(-1);setOtp(newOtp);
+    if(v&&i<3)otpRefs[i+1].current.focus();
+  };
+  const handleSendOTP=()=>{
+    if(!state.loginValue){dispatch({type:'notify',msg:'Please enter mobile or email',notifType:'error'});return;}
+    dispatch({type:'set',key:'otpSent',val:true});
+    dispatch({type:'notify',msg:'OTP sent: 1234 (demo)',notifType:'success'});
+  };
+  const handleVerify=()=>{
+    const enteredOTP=otp.join('');
+    if(enteredOTP==='1234'||enteredOTP.length===4){
+      const val=state.loginValue.toLowerCase();
+      const admin=ADMINS.find(a=>a.mobile===state.loginValue||a.email===val);
+      const member=MEMBERS.find(m=>m.mobile===state.loginValue||m.email===val);
+      if(admin){dispatch({type:'login',user:{...admin,role:'admin'}});}
+      else if(member){dispatch({type:'login',user:{...member,role:'member'}});}
+      else{
+        // Default demo
+        dispatch({type:'login',user:{...ADMINS[0],role:'admin'}});
+      }
+    }else{dispatch({type:'notify',msg:'Invalid OTP. Use 1234 for demo',notifType:'error'});}
+  };
+  return React.createElement('div',{className:'login-wrap'},
+    React.createElement('div',{className:'login-card'},
+      React.createElement('div',{className:'login-logo'},
+        React.createElement('h1',null,'Bila',React.createElement('span',null,'Sodhi')),
+        React.createElement('p',null,'Loan Management System')
+      ),
+      React.createElement('div',{className:'tabs'},
+        ['mobile','email'].map(t=>React.createElement('div',{key:t,className:'tab '+(state.loginTab===t?'active':''),onClick:()=>dispatch({type:'set',key:'loginTab',val:t})},t==='mobile'?'Mobile Number':'Email ID'))
+      ),
+      !state.otpSent?React.createElement('div',null,
+        React.createElement('div',{className:'form-group'},
+          React.createElement('label',null,state.loginTab==='mobile'?'Mobile Number':'Email ID'),
+          React.createElement('input',{type:state.loginTab==='mobile'?'tel':'email',placeholder:state.loginTab==='mobile'?'Enter 10-digit mobile':'Enter email address',value:state.loginValue,onChange:e=>dispatch({type:'set',key:'loginValue',val:e.target.value}),onKeyDown:e=>e.key==='Enter'&&handleSendOTP()})
+        ),
+        React.createElement('button',{className:'btn btn-primary',style:{width:'100%',justifyContent:'center',padding:'12px'},onClick:handleSendOTP},'Send OTP'),
+        React.createElement('p',{style:{textAlign:'center',fontSize:11,color:'#6b7280',marginTop:16}},'Demo: Use any mobile/email → OTP: 1234'),
+        React.createElement('p',{style:{textAlign:'center',fontSize:11,color:'#6b7280',marginTop:4}},'Admin: 9876543210 | Member: 9870000000')
+      ):React.createElement('div',null,
+        React.createElement('p',{style:{fontSize:13,color:'#6b7280',textAlign:'center',marginBottom:16}},'Enter OTP sent to '+state.loginValue),
+        React.createElement('div',{className:'otp-wrap'},
+          otp.map((v,i)=>React.createElement('input',{key:i,className:'otp-input',type:'text',maxLength:1,value:v,ref:otpRefs[i],onChange:e=>handleOTPInput(i,e.target.value),onKeyDown:e=>e.key==='Backspace'&&!v&&i>0&&otpRefs[i-1].current.focus()}))
+        ),
+        React.createElement('button',{className:'btn btn-primary',style:{width:'100%',justifyContent:'center',padding:'12px'},onClick:handleVerify},'Verify & Login'),
+        React.createElement('p',{style:{textAlign:'center',fontSize:12,color:var_primary,marginTop:12,cursor:'pointer'},onClick:()=>dispatch({type:'set',key:'otpSent',val:false})},'← Change number')
+      )
+    )
+  );
+}
+const var_primary='#1a56db';
+
+// ── SIDEBAR ───────────────────────────────────────────────────────────
+function Sidebar({user,page,onNav,onLogout}){
+  const isAdmin=user.role==='admin';
+  const adminNavs=[
+    {id:'dashboard',label:'Dashboard',icon:'dashboard'},
+    {id:'members',label:'Members',icon:'members'},
+    {id:'loans',label:'Loan Applications',icon:'loan'},
+    {id:'payments',label:'Payments',icon:'payment'},
+    {id:'reports',label:'Reports',icon:'reports'},
+  ];
+  const memberNavs=[
+    {id:'dashboard',label:'Dashboard',icon:'dashboard'},
+    {id:'my-loan',label:'My Loan',icon:'loan'},
+    {id:'payments',label:'Payment History',icon:'payment'},
+    {id:'qr-pay',label:'QR Payment',icon:'qr'},
+    {id:'profile',label:'My Profile',icon:'profile'},
+  ];
+  const navs=isAdmin?adminNavs:memberNavs;
+  return React.createElement('div',{className:'sidebar'},
+    React.createElement('div',{className:'sidebar-logo'},
+      React.createElement('h2',null,'BilaSodhi'),
+      React.createElement('span',null,isAdmin?'Admin Panel':'Member Portal')
+    ),
+    React.createElement('div',{className:'sidebar-nav'},
+      React.createElement('div',{className:'nav-section'},'Menu'),
+      navs.map(n=>React.createElement('div',{key:n.id,className:'nav-item '+(page===n.id?'active':''),onClick:()=>onNav(n.id)},
+        React.createElement(Icon,{d:icons[n.icon],size:16}),n.label
+      ))
+    ),
+    React.createElement('div',{className:'sidebar-footer'},
+      React.createElement('div',{className:'user-pill',onClick:()=>onNav('profile')},
+        React.createElement(Avatar,{name:user.name,size:32}),
+        React.createElement('div',{className:'info'},
+          React.createElement('div',{className:'name'},user.name),
+          React.createElement('div',{className:'role'},isAdmin?'Administrator':'Member')
+        )
+      ),
+      React.createElement('div',{className:'nav-item',style:{marginTop:8},onClick:onLogout},
+        React.createElement(Icon,{d:icons.logout,size:16}),'Sign Out'
+      )
+    )
+  );
+}
+
+// ── ADMIN DASHBOARD ───────────────────────────────────────────────────
+function AdminDashboard({user,members,loans,onAction}){
+  const myMembers=members.filter(m=>m.adminId===user.id);
+  const activeLoans=myMembers.filter(m=>m.loan&&m.loan.status==='active');
+  const totalLoanGiven=activeLoans.reduce((s,m)=>s+m.loan.amount,0);
+  const totalPaid=activeLoans.reduce((s,m)=>s+m.loan.paid,0);
+  const pending=totalLoanGiven-totalPaid;
+  const recent=myMembers.slice(0,5);
+  return React.createElement('div',null,
+    React.createElement('div',{className:'stats-grid'},
+      React.createElement(StatCard,{label:'Total Members',value:myMembers.length,sub:'Assigned to you',color:'#1a56db',icon:'members'}),
+      React.createElement(StatCard,{label:'Active Members',value:myMembers.filter(m=>m.status!=='inactive').length,sub:'Currently active',color:'#059669',icon:'members'}),
+      React.createElement(StatCard,{label:'Active Loans',value:activeLoans.length,sub:'Members with loan',color:'#d97706',icon:'loan'}),
+      React.createElement(StatCard,{label:'Total Disbursed',value:formatCurrency(totalLoanGiven),sub:'Total loan given',color:'#7c3aed',icon:'payment'}),
+      React.createElement(StatCard,{label:'Amount Received',value:formatCurrency(totalPaid),sub:'Repayments collected',color:'#059669',icon:'payment'}),
+      React.createElement(StatCard,{label:'Pending Amount',value:formatCurrency(pending),sub:'Yet to be recovered',color:'#dc2626',icon:'payment'})
+    ),
+    React.createElement('div',{className:'grid-2'},
+      React.createElement('div',{className:'card'},
+        React.createElement('div',{style:{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:16}},
+          React.createElement('div',{className:'section-title',style:{margin:0}},'Recent Members'),
+          React.createElement('button',{className:'btn btn-outline btn-sm',onClick:()=>onAction('members')},'View All')
+        ),
+        recent.map(m=>React.createElement('div',{key:m.id,style:{display:'flex',alignItems:'center',gap:12,padding:'10px 0',borderBottom:'1px solid #f3f4f6'}},
+          React.createElement(Avatar,{name:m.name,size:36}),
+          React.createElement('div',{style:{flex:1}},
+            React.createElement('div',{style:{fontSize:13,fontWeight:600}}),m.name,
+            React.createElement('div',{style:{fontSize:11,color:'#6b7280'}}),m.mobile
+          ),
+          React.createElement(Badge,{status:m.loan?'loan-active':m.status})
+        ))
+      ),
+      React.createElement('div',{className:'card'},
+        React.createElement('div',{className:'section-title'},'Pending Loan Approvals'),
+        React.createElement('div',{style:{fontSize:13,color:'#6b7280',padding:'20px 0',textAlign:'center'}},
+          React.createElement('div',{style:{fontSize:32,marginBottom:8}},'✓'),
+          'No pending approvals'
+        ),
+        React.createElement('button',{className:'btn btn-primary btn-sm',style:{marginTop:8},onClick:()=>onAction('loans')},'+ Approve Loans')
+      )
+    )
+  );
+}
+
+// ── MEMBER DASHBOARD ──────────────────────────────────────────────────
+function MemberDashboard({user,onAction}){
+  const loan=user.loan;
+  const emi=loan?calcEMI(loan):0;
+  const remaining=loan?calcRemaining(loan):0;
+  const progress=loan?calcProgress(loan):0;
+  return React.createElement('div',null,
+    React.createElement('div',{style:{background:'linear-gradient(135deg,#1a56db,#1e40af)',borderRadius:16,padding:24,marginBottom:24,color:'#fff'}},
+      React.createElement('div',{style:{display:'flex',justifyContent:'space-between',alignItems:'flex-start'}},
+        React.createElement('div',null,
+          React.createElement('p',{style:{fontSize:13,opacity:.8,marginBottom:4}},'Welcome back,'),
+          React.createElement('h2',{style:{fontSize:22,fontWeight:700,marginBottom:4}},user.name),
+          React.createElement('p',{style:{fontSize:12,opacity:.7}},'Member ID: '+user.id)
+        ),
+        React.createElement('div',{style:{background:'rgba(255,255,255,.15)',borderRadius:10,padding:'8px 16px',fontSize:13}},loan?'Loan Active':'No Active Loan')
+      ),
+      loan&&React.createElement('div',{style:{marginTop:20}},
+        React.createElement('div',{style:{display:'flex',justifyContent:'space-between',marginBottom:6}},
+          React.createElement('span',{style:{fontSize:13,opacity:.8}},'Loan Progress'),
+          React.createElement('span',{style:{fontSize:13,fontWeight:600}}),progress+'%'
+        ),
+        React.createElement('div',{style:{background:'rgba(255,255,255,.2)',borderRadius:99,height:6}},
+          React.createElement('div',{style:{background:'#fff',height:6,borderRadius:99,width:progress+'%',transition:'width .5s'}})
+        )
+      )
+    ),
+    loan?React.createElement('div',null,
+      React.createElement('div',{className:'stats-grid'},
+        React.createElement(StatCard,{label:'Loan Amount',value:formatCurrency(loan.amount),sub:'Total sanctioned',color:'#1a56db',icon:'loan'}),
+        React.createElement(StatCard,{label:'Amount Paid',value:formatCurrency(loan.paid),sub:'Paid so far',color:'#059669',icon:'payment'}),
+        React.createElement(StatCard,{label:'Remaining',value:formatCurrency(remaining),sub:'Balance due',color:'#dc2626',icon:'payment'}),
+        React.createElement(StatCard,{label:'Monthly EMI',value:formatCurrency(emi),sub:'Per month',color:'#d97706',icon:'payment'})
+      ),
+      React.createElement('div',{className:'grid-2'},
+        React.createElement('div',{className:'card'},
+          React.createElement(EMISchedule,{loan,member:user})
+        ),
+        React.createElement('div',{className:'card'},
+          React.createElement('div',{className:'section-title'},'Quick Pay'),
+          React.createElement(QRCode,{memberId:user.id,name:user.name}),
+          React.createElement('button',{className:'btn btn-primary',style:{width:'100%',justifyContent:'center',marginTop:16},onClick:()=>onAction('qr-pay')},'Full QR Payment Screen')
+        )
+      )
+    ):React.createElement('div',{className:'card',style:{textAlign:'center',padding:48}},
+      React.createElement('div',{style:{fontSize:48,marginBottom:16}},'💰'),
+      React.createElement('h3',{style:{marginBottom:8}},'No Active Loan'),
+      React.createElement('p',{style:{color:'#6b7280',marginBottom:20,fontSize:13}},'Apply for an interest-free loan today'),
+      React.createElement('button',{className:'btn btn-primary',onClick:()=>onAction('apply-loan')},'Apply for Loan')
+    )
+  );
+}
+
+// ── MEMBERS PAGE ──────────────────────────────────────────────────────
+function MembersPage({user,members,dispatch}){
+  const[search,setSearch]=useState('');
+  const[filter,setFilter]=useState('all');
+  const[selected,setSelected]=useState(null);
+  const myMembers=members.filter(m=>m.adminId===user.id);
+  const filtered=myMembers.filter(m=>{
+    const matchSearch=!search||m.name.toLowerCase().includes(search.toLowerCase())||m.mobile.includes(search);
+    const matchFilter=filter==='all'||(filter==='loan'&&m.loan&&m.loan.status==='active')||(filter==='no-loan'&&!m.loan);
+    return matchSearch&&matchFilter;
+  });
+  return React.createElement('div',null,
+    React.createElement('div',{style:{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:20}},
+      React.createElement('div',null,
+        React.createElement('h2',{style:{fontSize:18,fontWeight:700}},'Members'),
+        React.createElement('p',{style:{fontSize:13,color:'#6b7280'}},'Manage your '+myMembers.length+' assigned members')
+      )
+    ),
+    React.createElement('div',{className:'card',style:{marginBottom:16}},
+      React.createElement('div',{style:{display:'flex',gap:12,flexWrap:'wrap'}},
+        React.createElement('div',{className:'search-wrap',style:{flex:1,minWidth:200}},
+          React.createElement('div',{className:'search-icon'},React.createElement(Icon,{d:icons.search,size:14})),
+          React.createElement('input',{placeholder:'Search by name or mobile...',value:search,onChange:e=>setSearch(e.target.value)})
+        ),
+        React.createElement('div',{style:{display:'flex',gap:8}},
+          ['all','loan','no-loan'].map(f=>React.createElement('span',{key:f,className:'chip '+(filter===f?'active':''),onClick:()=>setFilter(f)},f==='all'?'All':f==='loan'?'Has Loan':'No Loan'))
+        )
+      )
+    ),
+    React.createElement('div',{className:'card'},
+      React.createElement('div',{className:'table-wrap'},
+        React.createElement('table',null,
+          React.createElement('thead',null,React.createElement('tr',null,
+            React.createElement('th',null,'Member'),React.createElement('th',null,'Mobile'),React.createElement('th',null,'Status'),
+            React.createElement('th',null,'Loan'),React.createElement('th',null,'Paid'),React.createElement('th',null,'Remaining'),React.createElement('th',null,'Actions')
+          )),
+          React.createElement('tbody',null,filtered.map(m=>
+            React.createElement('tr',{key:m.id},
+              React.createElement('td',null,React.createElement('div',{style:{display:'flex',alignItems:'center',gap:8}},
+                React.createElement(Avatar,{name:m.name,size:32}),
+                React.createElement('div',null,
+                  React.createElement('div',{style:{fontWeight:600,fontSize:13}},m.name),
+                  React.createElement('div',{style:{fontSize:11,color:'#6b7280'}},m.id)
+                )
+              )),
+              React.createElement('td',null,m.mobile),
+              React.createElement('td',null,React.createElement(Badge,{status:m.loan?'loan-active':m.status})),
+              React.createElement('td',null,m.loan?formatCurrency(m.loan.amount):'—'),
+              React.createElement('td',null,m.loan?formatCurrency(m.loan.paid):'—'),
+              React.createElement('td',null,m.loan?React.createElement('span',{style:{color:'#dc2626',fontWeight:600}},formatCurrency(calcRemaining(m.loan))):'—'),
+              React.createElement('td',null,React.createElement('button',{className:'btn btn-outline btn-xs',onClick:()=>setSelected(m)},
+                React.createElement(Icon,{d:icons.eye,size:12}),' View'
+              ))
+            )
+          ))
+        )
+      )
+    ),
+    selected&&React.createElement('div',{className:'modal-overlay',onClick:()=>setSelected(null)},
+      React.createElement('div',{className:'modal',onClick:e=>e.stopPropagation()},
+        React.createElement('div',{className:'modal-header'},
+          React.createElement('h3',null,'Member Details'),
+          React.createElement('button',{className:'close-btn',onClick:()=>setSelected(null)},React.createElement(Icon,{d:icons.x,size:14}))
+        ),
+        React.createElement('div',{style:{textAlign:'center',marginBottom:20}},
+          React.createElement('div',{style:{width:64,height:64,borderRadius:'50%',background:'#eff6ff',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 8px',fontSize:24,fontWeight:700,color:'#1a56db'}},getInitials(selected.name)),
+          React.createElement('h3',{style:{fontSize:16,fontWeight:700}},selected.name),
+          React.createElement('p',{style:{color:'#6b7280',fontSize:12}},selected.id+' • '+selected.mobile)
+        ),
+        React.createElement('div',{style:{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:16}},
+          [['Email',selected.email],['Bank',selected.bank],['IFSC',selected.ifsc],['Account',selected.account],['Joined',formatDate(selected.joined)],['Status',selected.status]].map(([k,v])=>
+            React.createElement('div',{key:k,style:{background:'#f9fafb',borderRadius:8,padding:'10px 12px'}},
+              React.createElement('div',{style:{fontSize:10,color:'#6b7280',marginBottom:2}},k),
+              React.createElement('div',{style:{fontSize:13,fontWeight:500}},v)
+            )
+          )
+        ),
+        selected.loan&&React.createElement('div',null,
+          React.createElement('div',{style:{borderTop:'1px solid #e5e7eb',paddingTop:16,marginBottom:12}},
+            React.createElement('h4',{style:{fontSize:13,fontWeight:700,marginBottom:8}},'Loan Details'),
+            React.createElement('div',{className:'progress-bar',style:{marginBottom:8}},
+              React.createElement('div',{className:'progress-fill',style:{width:calcProgress(selected.loan)+'%'}})
+            ),
+            React.createElement('div',{style:{display:'flex',justifyContent:'space-between',fontSize:12,color:'#6b7280'}},
+              React.createElement('span',null,'Paid: '+formatCurrency(selected.loan.paid)),
+              React.createElement('span',null,'Remaining: '+formatCurrency(calcRemaining(selected.loan)))
+            )
+          ),
+          React.createElement(EMISchedule,{loan:selected.loan,member:selected})
+        )
+      )
+    )
+  );
+}
+
+// ── LOANS PAGE ────────────────────────────────────────────────────────
+function LoansPage({user,members,dispatch}){
+  const[modal,setModal]=useState(null);
+  const myMembers=members.filter(m=>m.adminId===user.id);
+  const loanMembers=myMembers.filter(m=>m.loan);
+  const handlePayment=(m,amt)=>{
+    const newAmt=Math.min(Number(amt),calcRemaining(m.loan));
+    dispatch({type:'addPayment',memberId:m.id,amount:newAmt});
+    setModal(null);
+    dispatch({type:'notify',msg:'Payment of '+formatCurrency(newAmt)+' recorded',notifType:'success'});
+  };
+  return React.createElement('div',null,
+    React.createElement('div',{style:{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:20}},
+      React.createElement('h2',{style:{fontSize:18,fontWeight:700}},'Loan Management'),
+    ),
+    React.createElement('div',{className:'card'},
+      React.createElement('div',{className:'table-wrap'},
+        React.createElement('table',null,
+          React.createElement('thead',null,React.createElement('tr',null,
+            ['Member','Loan Amount','EMI/Month','Paid','Remaining','Progress','Action'].map(h=>React.createElement('th',{key:h},h))
+          )),
+          React.createElement('tbody',null,loanMembers.map(m=>{
+            const loan=m.loan;const emi=calcEMI(loan);const rem=calcRemaining(loan);const pct=calcProgress(loan);
+            return React.createElement('tr',{key:m.id},
+              React.createElement('td',null,React.createElement('div',{style:{display:'flex',alignItems:'center',gap:8}},
+                React.createElement(Avatar,{name:m.name,size:28}),
+                React.createElement('span',{style:{fontWeight:500,fontSize:13}},m.name)
+              )),
+              React.createElement('td',null,formatCurrency(loan.amount)),
+              React.createElement('td',null,formatCurrency(emi)),
+              React.createElement('td',{style:{color:'#059669',fontWeight:600}},formatCurrency(loan.paid)),
+              React.createElement('td',{style:{color:'#dc2626',fontWeight:600}},formatCurrency(rem)),
+              React.createElement('td',null,
+                React.createElement('div',{style:{display:'flex',alignItems:'center',gap:8}},
+                  React.createElement('div',{className:'progress-bar',style:{width:80,flex:'none'}},
+                    React.createElement('div',{className:'progress-fill',style:{width:pct+'%'}})
+                  ),
+                  React.createElement('span',{style:{fontSize:11,color:'#6b7280'}},pct+'%')
+                )
+              ),
+              React.createElement('td',null,
+                rem>0?React.createElement('button',{className:'btn btn-primary btn-xs',onClick:()=>setModal({member:m,amount:''})},'+Pay'):
+                React.createElement('span',{className:'badge badge-success'},'Cleared')
+              )
+            );
+          }))
+        )
+      )
+    ),
+    modal&&React.createElement('div',{className:'modal-overlay',onClick:()=>setModal(null)},
+      React.createElement('div',{className:'modal',style:{maxWidth:360},onClick:e=>e.stopPropagation()},
+        React.createElement('div',{className:'modal-header'},
+          React.createElement('h3',null,'Record Payment'),
+          React.createElement('button',{className:'close-btn',onClick:()=>setModal(null)},React.createElement(Icon,{d:icons.x,size:14}))
+        ),
+        React.createElement('p',{style:{fontSize:13,color:'#6b7280',marginBottom:16}},'Member: '+modal.member.name+' | Remaining: '+formatCurrency(calcRemaining(modal.member.loan))),
+        React.createElement('div',{className:'form-group'},
+          React.createElement('label',null,'Payment Amount (₹)'),
+          React.createElement('input',{type:'number',placeholder:'Enter amount',value:modal.amount,onChange:e=>setModal({...modal,amount:e.target.value}),max:calcRemaining(modal.member.loan)})
+        ),
+        React.createElement('div',{style:{display:'flex',gap:8}},
+          React.createElement('button',{className:'btn btn-outline',style:{flex:1},onClick:()=>setModal(null)},'Cancel'),
+          React.createElement('button',{className:'btn btn-success',style:{flex:1},onClick:()=>handlePayment(modal.member,modal.amount)},'Record Payment')
+        )
+      )
+    )
+  );
+}
+
+// ── REPORTS PAGE ──────────────────────────────────────────────────────
+function ReportsPage({user,members}){
+  const myMembers=members.filter(m=>m.adminId===user.id);
+  const loanMembers=myMembers.filter(m=>m.loan);
+  const totalGiven=loanMembers.reduce((s,m)=>s+m.loan.amount,0);
+  const totalPaid=loanMembers.reduce((s,m)=>s+m.loan.paid,0);
+  const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return React.createElement('div',null,
+    React.createElement('div',{style:{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:20}},
+      React.createElement('h2',{style:{fontSize:18,fontWeight:700}},'Reports & Analytics'),
+      React.createElement('button',{className:'btn btn-outline btn-sm'},React.createElement(Icon,{d:icons.download,size:14}),' Export PDF')
+    ),
+    React.createElement('div',{className:'stats-grid',style:{marginBottom:20}},
+      React.createElement(StatCard,{label:'Total Disbursed',value:formatCurrency(totalGiven),color:'#1a56db',icon:'loan'}),
+      React.createElement(StatCard,{label:'Total Recovered',value:formatCurrency(totalPaid),color:'#059669',icon:'payment'}),
+      React.createElement(StatCard,{label:'Total Pending',value:formatCurrency(totalGiven-totalPaid),color:'#dc2626',icon:'payment'}),
+      React.createElement(StatCard,{label:'Recovery Rate',value:Math.round(totalPaid/totalGiven*100)+'%',color:'#7c3aed',icon:'reports'})
+    ),
+    React.createElement('div',{className:'card',style:{marginBottom:16}},
+      React.createElement('div',{className:'section-title'},'Monthly Recovery Chart'),
+      React.createElement('div',{style:{display:'flex',alignItems:'flex-end',gap:8,height:160,marginTop:16}},
+        months.map((m,i)=>{
+          const h=20+Math.abs(Math.sin(i*0.8)*100);
+          return React.createElement('div',{key:m,style:{flex:1,display:'flex',flexDirection:'column',alignItems:'center',gap:4}},
+            React.createElement('div',{style:{width:'100%',background:'#1a56db',borderRadius:'4px 4px 0 0',height:h+'%',minHeight:8,transition:'height .5s',cursor:'pointer',title:formatCurrency(Math.floor(h*500))}}),
+            React.createElement('div',{style:{fontSize:10,color:'#6b7280'}},m)
+          );
+        })
+      )
+    ),
+    React.createElement('div',{className:'card'},
+      React.createElement('div',{className:'section-title'},'Member-wise Summary'),
+      React.createElement('div',{className:'table-wrap'},
+        React.createElement('table',null,
+          React.createElement('thead',null,React.createElement('tr',null,['Member','Loan Amount','Paid','Remaining','% Complete'].map(h=>React.createElement('th',{key:h},h)))),
+          React.createElement('tbody',null,loanMembers.map(m=>
+            React.createElement('tr',{key:m.id},
+              React.createElement('td',null,m.name),
+              React.createElement('td',null,formatCurrency(m.loan.amount)),
+              React.createElement('td',{style:{color:'#059669'}},formatCurrency(m.loan.paid)),
+              React.createElement('td',{style:{color:'#dc2626'}},formatCurrency(calcRemaining(m.loan))),
+              React.createElement('td',null,
+                React.createElement('div',{style:{display:'flex',alignItems:'center',gap:8}},
+                  React.createElement('div',{className:'progress-bar',style:{width:80}},
+                    React.createElement('div',{className:'progress-fill',style:{width:calcProgress(m.loan)+'%'}})
+                  ),
+                  calcProgress(m.loan)+'%'
+                )
+              )
+            )
+          ))
+        )
+      )
+    )
+  );
+}
+
+// ── MY LOAN PAGE ──────────────────────────────────────────────────────
+function MyLoanPage({user,dispatch}){
+  const[showApply,setShowApply]=useState(false);
+  const[form,setForm]=useState({amount:'',duration:'',purpose:''});
+  const loan=user.loan;
+  const handleApply=()=>{
+    if(!form.amount||!form.duration){dispatch({type:'notify',msg:'Fill all fields',notifType:'error'});return;}
+    dispatch({type:'applyLoan',userId:user.id,loan:{id:'L'+Date.now(),amount:Number(form.amount),duration:Number(form.duration),paid:0,status:'pending',appliedDate:new Date().toISOString().slice(0,10)}});
+    setShowApply(false);
+    dispatch({type:'notify',msg:'Loan application submitted!',notifType:'success'});
+  };
+  if(showApply)return React.createElement('div',{className:'card',style:{maxWidth:480}},
+    React.createElement('div',{className:'modal-header',style:{marginBottom:20}},
+      React.createElement('h3',null,'Apply for Loan'),
+      React.createElement('button',{className:'close-btn',onClick:()=>setShowApply(false)},React.createElement(Icon,{d:icons.x,size:14}))
+    ),
+    React.createElement('div',{style:{background:'#eff6ff',borderRadius:10,padding:12,marginBottom:16,fontSize:13,color:'#1e40af'}},'✓ Interest-free loan • Repay only principal amount'),
+    React.createElement('div',{className:'form-group'},
+      React.createElement('label',null,'Loan Amount (₹)'),
+      React.createElement('input',{type:'number',placeholder:'e.g. 20000',value:form.amount,onChange:e=>setForm({...form,amount:e.target.value})})
+    ),
+    React.createElement('div',{className:'form-group'},
+      React.createElement('label',null,'Repayment Duration (Months)'),
+      React.createElement('select',{value:form.duration,onChange:e=>setForm({...form,duration:e.target.value})},
+        React.createElement('option',{value:''},'Select duration'),
+        [6,12,18,20,24].map(d=>React.createElement('option',{key:d,value:d},d+' months'))
+      )
+    ),
+    form.amount&&form.duration&&React.createElement('div',{style:{background:'#f0fdf4',border:'1px solid #bbf7d0',borderRadius:8,padding:12,marginBottom:16}},
+      React.createElement('div',{style:{fontSize:12,color:'#059669',fontWeight:600}},'Monthly EMI: '+formatCurrency(Math.ceil(form.amount/form.duration))),
+      React.createElement('div',{style:{fontSize:11,color:'#6b7280'}},'No interest charged on principal')
+    ),
+    React.createElement('div',{className:'form-group'},
+      React.createElement('label',null,'Purpose (Optional)'),
+      React.createElement('textarea',{placeholder:'Reason for loan...',value:form.purpose,onChange:e=>setForm({...form,purpose:e.target.value})})
+    ),
+    React.createElement('div',{style:{display:'flex',gap:8}},
+      React.createElement('button',{className:'btn btn-outline',style:{flex:1},onClick:()=>setShowApply(false)},'Cancel'),
+      React.createElement('button',{className:'btn btn-primary',style:{flex:1},onClick:handleApply},'Submit Application')
+    )
+  );
+  return React.createElement('div',null,
+    React.createElement('div',{style:{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:20}},
+      React.createElement('h2',{style:{fontSize:18,fontWeight:700}},'My Loan'),
+      !loan&&React.createElement('button',{className:'btn btn-primary',onClick:()=>setShowApply(true)},React.createElement(Icon,{d:icons.plus,size:14}),' Apply for Loan')
+    ),
+    loan?React.createElement('div',null,
+      React.createElement('div',{className:'grid-2',style:{marginBottom:20}},
+        React.createElement('div',{className:'card'},
+          React.createElement('div',{className:'section-title'},'Loan Overview'),
+          React.createElement('div',{style:{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12}},
+            [['Loan ID',loan.id],['Amount',formatCurrency(loan.amount)],['Duration',loan.duration+' months'],['Monthly EMI',formatCurrency(calcEMI(loan))],['Amount Paid',formatCurrency(loan.paid)],['Balance',formatCurrency(calcRemaining(loan))]].map(([k,v])=>
+              React.createElement('div',{key:k,style:{background:'#f9fafb',borderRadius:8,padding:10}},
+                React.createElement('div',{style:{fontSize:10,color:'#6b7280',marginBottom:2}},k),
+                React.createElement('div',{style:{fontSize:14,fontWeight:600}},v)
+              )
+            )
+          )
+        ),
+        React.createElement('div',{className:'card'},
+          React.createElement('div',{className:'section-title'},'Repayment Progress'),
+          React.createElement('div',{style:{textAlign:'center',padding:'20px 0'}},
+            React.createElement('div',{style:{fontSize:42,fontWeight:800,color:'#1a56db'}},calcProgress(loan)+'%'),
+            React.createElement('div',{style:{fontSize:13,color:'#6b7280',marginBottom:16}},'Repaid'),
+            React.createElement('div',{className:'progress-bar'},
+              React.createElement('div',{className:'progress-fill',style:{width:calcProgress(loan)+'%'}})
+            ),
+            React.createElement('div',{style:{display:'flex',justifyContent:'space-between',fontSize:11,color:'#6b7280',marginTop:8}},
+              React.createElement('span',null,'₹0'),
+              React.createElement('span',null,formatCurrency(loan.amount))
+            )
+          )
+        )
+      ),
+      React.createElement('div',{className:'card'},
+        React.createElement(EMISchedule,{loan,member:user})
+      )
+    ):React.createElement('div',{className:'card',style:{textAlign:'center',padding:48}},
+      React.createElement('div',{style:{fontSize:48,marginBottom:12}},'💳'),
+      React.createElement('h3',{style:{marginBottom:8}},'No Active Loan'),
+      React.createElement('p',{style:{color:'#6b7280',fontSize:13,marginBottom:20}},'You currently have no loan. Apply for an interest-free loan.'),
+      React.createElement('button',{className:'btn btn-primary',onClick:()=>setShowApply(true)},React.createElement(Icon,{d:icons.plus,size:14}),' Apply for Loan')
+    )
+  );
+}
+
+// ── QR PAGE ───────────────────────────────────────────────────────────
+function QRPage({user,dispatch}){
+  const[amount,setAmount]=useState('');
+  const[paid,setPaid]=useState(false);
+  const handlePay=()=>{
+    if(!amount||Number(amount)<=0){dispatch({type:'notify',msg:'Enter valid amount',notifType:'error'});return;}
+    if(!user.loan){dispatch({type:'notify',msg:'No active loan',notifType:'error'});return;}
+    dispatch({type:'addPayment',memberId:user.id,amount:Number(amount)});
+    setPaid(true);
+    dispatch({type:'notify',msg:'Payment of '+formatCurrency(amount)+' successful!',notifType:'success'});
+    setTimeout(()=>setPaid(false),3000);
+    setAmount('');
+  };
+  return React.createElement('div',{style:{maxWidth:480,margin:'0 auto'}},
+    React.createElement('h2',{style:{fontSize:18,fontWeight:700,marginBottom:20}},'QR Payment'),
+    React.createElement('div',{className:'card',style:{textAlign:'center',marginBottom:16}},
+      React.createElement(QRCode,{memberId:user.id,name:user.name}),
+      React.createElement('p',{style:{fontSize:12,color:'#6b7280',marginTop:12}},'Show this QR to admin for payment')
+    ),
+    React.createElement('div',{className:'card'},
+      React.createElement('div',{className:'section-title'},'Manual Payment Entry'),
+      user.loan&&React.createElement('div',{style:{background:'#eff6ff',borderRadius:8,padding:10,marginBottom:14,fontSize:13,color:'#1e40af'}},
+        'Remaining Balance: '+formatCurrency(calcRemaining(user.loan))
+      ),
+      React.createElement('div',{className:'form-group'},
+        React.createElement('label',null,'Payment Amount (₹)'),
+        React.createElement('input',{type:'number',placeholder:'Enter amount',value:amount,onChange:e=>setAmount(e.target.value)})
+      ),
+      paid?React.createElement('div',{style:{textAlign:'center',padding:16,color:'#059669',fontWeight:700,fontSize:18}},'✓ Payment Recorded!'):
+      React.createElement('button',{className:'btn btn-success',style:{width:'100%',justifyContent:'center',padding:12},onClick:handlePay},'Confirm Payment')
+    )
+  );
+}
+
+// ── PROFILE PAGE ──────────────────────────────────────────────────────
+function ProfilePage({user,dispatch}){
+  const[edit,setEdit]=useState(false);
+  const[form,setForm]=useState({name:user.name,mobile:user.mobile,email:user.email,ifsc:user.ifsc||'',bank:user.bank||''});
+  const handleSave=()=>{
+    dispatch({type:'updateProfile',userId:user.id,data:form});
+    setEdit(false);
+    dispatch({type:'notify',msg:'Profile updated successfully',notifType:'success'});
+  };
+  return React.createElement('div',{style:{maxWidth:600,margin:'0 auto'}},
+    React.createElement('div',{style:{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:20}},
+      React.createElement('h2',{style:{fontSize:18,fontWeight:700}},'My Profile'),
+      React.createElement('button',{className:'btn btn-outline btn-sm',onClick:()=>setEdit(!edit)},React.createElement(Icon,{d:icons.edit,size:14}),edit?'Cancel':'Edit Profile')
+    ),
+    React.createElement('div',{className:'card'},
+      React.createElement('div',{style:{textAlign:'center',marginBottom:24}},
+        React.createElement('div',{style:{width:80,height:80,borderRadius:'50%',background:'#eff6ff',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 12px',fontSize:28,fontWeight:700,color:'#1a56db'}},getInitials(user.name)),
+        React.createElement('h3',{style:{fontSize:18,fontWeight:700}},user.name),
+        React.createElement('p',{style:{color:'#6b7280',fontSize:13}},user.role==='admin'?'Administrator':'Member • '+user.id)
+      ),
+      edit?React.createElement('div',null,
+        React.createElement('div',{className:'form-row'},
+          React.createElement('div',{className:'form-group'},React.createElement('label',null,'Full Name'),React.createElement('input',{value:form.name,onChange:e=>setForm({...form,name:e.target.value})})),
+          React.createElement('div',{className:'form-group'},React.createElement('label',null,'Mobile'),React.createElement('input',{value:form.mobile,onChange:e=>setForm({...form,mobile:e.target.value})}))
+        ),
+        React.createElement('div',{className:'form-row'},
+          React.createElement('div',{className:'form-group'},React.createElement('label',null,'Email'),React.createElement('input',{value:form.email,onChange:e=>setForm({...form,email:e.target.value})})),
+          React.createElement('div',{className:'form-group'},React.createElement('label',null,'Bank Name'),React.createElement('input',{value:form.bank,onChange:e=>setForm({...form,bank:e.target.value})}))
+        ),
+        React.createElement('div',{className:'form-group'},React.createElement('label',null,'IFSC Code'),React.createElement('input',{value:form.ifsc,onChange:e=>setForm({...form,ifsc:e.target.value})})),
+        React.createElement('div',{style:{display:'flex',gap:8}},
+          React.createElement('button',{className:'btn btn-outline',onClick:()=>setEdit(false)},'Cancel'),
+          React.createElement('button',{className:'btn btn-primary',onClick:handleSave},'Save Changes')
+        )
+      ):React.createElement('div',{style:{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12}},
+        [['Name',user.name],['Mobile',user.mobile],['Email',user.email],['Bank',user.bank||'Not set'],['IFSC',user.ifsc||'Not set'],['Account',user.account||'Not set'],['Joined',user.joined?formatDate(user.joined):'N/A'],['Status',user.status||'Active']].map(([k,v])=>
+          React.createElement('div',{key:k,style:{background:'#f9fafb',borderRadius:8,padding:'10px 12px'}},
+            React.createElement('div',{style:{fontSize:10,color:'#6b7280',marginBottom:3,fontWeight:600}},k),
+            React.createElement('div',{style:{fontSize:13,fontWeight:500}},v)
+          )
+        )
+      )
+    )
+  );
+}
+
+// ── PAYMENTS PAGE ─────────────────────────────────────────────────────
+function PaymentsPage({user,members,dispatch}){
+  const isAdmin=user.role==='admin';
+  const myMembers=isAdmin?members.filter(m=>m.adminId===user.id):[];
+  const transactions=isAdmin?myMembers.filter(m=>m.loan&&m.loan.paid>0).flatMap(m=>{
+    const emi=calcEMI(m.loan);const paidMonths=Math.floor(m.loan.paid/emi);
+    return Array.from({length:paidMonths},(_, i)=>({id:m.id+'-'+(i+1),member:m.name,amount:emi,date:'2024-0'+(3+i)+'-15',type:'EMI',status:'completed'}));
+  }):[user.loan?[{id:'T1',member:user.name,amount:user.loan.paid,date:'2024-04-15',type:'EMI',status:'completed'}]:[]].flat();
+  return React.createElement('div',null,
+    React.createElement('div',{style:{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:20}},
+      React.createElement('h2',{style:{fontSize:18,fontWeight:700}},'Payment History')
+    ),
+    React.createElement('div',{className:'card'},
+      transactions.length?React.createElement('div',{className:'table-wrap'},
+        React.createElement('table',null,
+          React.createElement('thead',null,React.createElement('tr',null,['Date','Member','Amount','Type','Status'].map(h=>React.createElement('th',{key:h},h)))),
+          React.createElement('tbody',null,transactions.map((t,i)=>
+            React.createElement('tr',{key:i},
+              React.createElement('td',null,t.date),
+              React.createElement('td',null,t.member),
+              React.createElement('td',{style:{fontWeight:600,color:'#059669'}},formatCurrency(t.amount)),
+              React.createElement('td',null,React.createElement('span',{className:'badge badge-blue'},t.type)),
+              React.createElement('td',null,React.createElement('span',{className:'badge badge-success'},'Completed'))
+            )
+          ))
+        )
+      ):React.createElement('div',{style:{textAlign:'center',padding:40,color:'#6b7280'}},
+        React.createElement('div',{style:{fontSize:32,marginBottom:8}},'📋'),
+        'No payment history yet'
+      )
+    )
+  );
+}
+
+// ── REDUCER ───────────────────────────────────────────────────────────
+function reducer(state,action){
+  switch(action.type){
+    case 'set':return{...state,[action.key]:action.val};
+    case 'login':return{...state,screen:'app',currentUser:action.user,page:'dashboard'};
+    case 'logout':return{...initState,screen:'login'};
+    case 'navigate':return{...state,page:action.page};
+    case 'notify':return{...state,notification:{show:true,msg:action.msg,type:action.notifType||'success'}};
+    case 'clearNotify':return{...state,notification:{...state.notification,show:false}};
+    case 'addPayment':{
+      const newMembers=state.members.map(m=>{
+        if(m.id!==action.memberId)return m;
+        const newPaid=Math.min(m.loan.paid+action.amount,m.loan.amount);
+        return{...m,loan:{...m.loan,paid:newPaid,status:newPaid>=m.loan.amount?'cleared':'active'}};
+      });
+      const cu=state.currentUser?.id===action.memberId?{...state.currentUser,loan:{...state.currentUser.loan,paid:Math.min(state.currentUser.loan.paid+action.amount,state.currentUser.loan.amount)}}:state.currentUser;
+      return{...state,members:newMembers,currentUser:cu};
+    }
+    case 'applyLoan':{
+      const newMembers=state.members.map(m=>m.id===action.userId?{...m,loan:action.loan}:m);
+      const cu={...state.currentUser,loan:action.loan};
+      return{...state,members:newMembers,currentUser:cu};
+    }
+    case 'updateProfile':{
+      const newMembers=state.members.map(m=>m.id===action.userId?{...m,...action.data}:m);
+      const cu={...state.currentUser,...action.data};
+      return{...state,members:newMembers,currentUser:cu};
+    }
+    default:return state;
+  }
+}
+
+// ── APP ───────────────────────────────────────────────────────────────
+function App(){
+  const[state,dispatch]=useState(()=>initState);
+  const act=useCallback((action)=>dispatch(prev=>reducer(prev,action)),[]);
+  const{screen,currentUser,page,members,notification}=state;
+
+  if(screen==='login')return React.createElement('div',null,
+    React.createElement(Notification,{...notification,onClose:()=>act({type:'clearNotify'})}),
+    React.createElement(LoginScreen,{state,dispatch:act})
+  );
+
+  const topbarTitles={dashboard:'Dashboard',members:'Members',loans:'Loan Management',payments:'Payment History',reports:'Reports',profile:'My Profile','my-loan':'My Loan','qr-pay':'QR Payment'};
+  const renderPage=()=>{
+    if(currentUser.role==='admin'){
+      switch(page){
+        case 'dashboard':return React.createElement(AdminDashboard,{user:currentUser,members,loans:state.loans,onAction:p=>act({type:'navigate',page:p})});
+        case 'members':return React.createElement(MembersPage,{user:currentUser,members,dispatch:act});
+        case 'loans':return React.createElement(LoansPage,{user:currentUser,members,dispatch:act});
+        case 'payments':return React.createElement(PaymentsPage,{user:currentUser,members,dispatch:act});
+        case 'reports':return React.createElement(ReportsPage,{user:currentUser,members});
+        case 'profile':return React.createElement(ProfilePage,{user:currentUser,dispatch:act});
+        default:return React.createElement(AdminDashboard,{user:currentUser,members,loans:state.loans,onAction:p=>act({type:'navigate',page:p})});
+      }
+    }else{
+      switch(page){
+        case 'dashboard':return React.createElement(MemberDashboard,{user:currentUser,onAction:p=>act({type:'navigate',page:p})});
+        case 'my-loan':return React.createElement(MyLoanPage,{user:currentUser,dispatch:act});
+        case 'payments':return React.createElement(PaymentsPage,{user:currentUser,members,dispatch:act});
+        case 'qr-pay':return React.createElement(QRPage,{user:currentUser,dispatch:act});
+        case 'profile':return React.createElement(ProfilePage,{user:currentUser,dispatch:act});
+        default:return React.createElement(MemberDashboard,{user:currentUser,onAction:p=>act({type:'navigate',page:p})});
+      }
+    }
+  };
+
+  return React.createElement('div',{className:'app'},
+    React.createElement(Notification,{...notification,onClose:()=>act({type:'clearNotify'})}),
+    React.createElement(Sidebar,{user:currentUser,page,onNav:p=>act({type:'navigate',page:p}),onLogout:()=>act({type:'logout'})}),
+    React.createElement('div',{className:'main'},
+      React.createElement('div',{className:'topbar'},
+        React.createElement('h1',null,topbarTitles[page]||'BilaSodhi'),
+        React.createElement('div',{className:'topbar-actions'},
+          React.createElement('div',{style:{fontSize:12,color:'#6b7280',background:'#f3f4f6',padding:'6px 12px',borderRadius:8}},currentUser.role==='admin'?'Admin':'Member'),
+          React.createElement('div',{style:{width:32,height:32,borderRadius:'50%',background:'#eff6ff',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer'},onClick:()=>act({type:'navigate',page:'profile'})},
+            React.createElement(Avatar,{name:currentUser.name,size:32})
+          )
+        )
+      ),
+      React.createElement('div',{className:'content'},renderPage())
+    )
+  );
+}
+
+ReactDOM.render(React.createElement(App),document.getElementById('root'));
+</script>
+</body>
+</html>
